@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      background-color: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      margin-top: 100px;
+      text-align: center;
+      border-radius: 5px;      
+    }
+
+    h1 {
+      font-family: Arial, Helvetica, sans-serif;
+      text-transform: uppercase;
+      font-size: 36px;
+      margin: 0;
+      color:#fff
+    }
+
+    h2 {
+      font-family: Arial, Helvetica, sans-serif;
+      text-transform: uppercase;
+      font-size: 18px;
+      margin-top: 5px;
+      color: white;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 1.5px;
+      margin-top: 30px;
+    }
+
+    .game-cell {
+      cursor: pointer;
+      font-size: 48px;
+      color: #fff;
+      background-color: #818e81;
+      width: 100%;
+      padding-bottom: 100%;
+      position: relative;
+      border-radius: 5px;
+    }
+
+    .game-cell::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      height: 90%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .game-cell[data-value='X']::before {
+      content: 'X';
+      font-size: 60px;
+    }
+
+    .game-cell[data-value='O']::before {
+      content: 'O';
+      font-size: 60px;
+    }
+
+    p {
+      margin: 10px 0;
+      color: #fff;
+    }
+
+    span.score {
+      font-weight: bold;
+    }
+
+    .btn-exit,
+    .btn-new-game {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #f44336;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-exit:hover,
+    .btn-new-game:hover {
+      background-color: #d32f2f;
+    }
+
+    .score-table {
+      margin-top: 20px;
+      width: 200px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    .score-label {
+      font-weight: bold;
+      font-size: 18px;
+      color: #fff;
+    }
+
+    .score {
+      font-size: 24px;
+      color: #fff;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="title">Tic Tac Toe</h1>
+    <h2 class="subtitle">Player X Player</h2>
+    <div class="game-grid">
+        <div class="game-cell" data-cell></div>
+        <div class="game-cell" data-cell></div>
+        <div class="game-cell" data-cell></div>
+        <div class="game-cell" data-cell></div>
+        <div class="game-cell" data-cell></div>
+        <div class="game-cell" data-cell></div>
+        <div class="game-cell" data-cell></div>
+        <div class="game-cell" data-cell></div>
+        <div class="game-cell" data-cell></div>
+      </div>
+  
+      <p class="turn-message">It's Player X's turn</p>
+  
+      <div class="buttons">
+        <button class="btn-exit">Exit</button>
+        <button class="btn-new-game">New Game</button>
+      </div>
+  
+      <div class="score-table">
+        <div class="score-label">Score</div>
+        <div class="score" data-player="X">Player X: <span class="score-count">0</span></div>
+        <div class="score" data-player="O">Player O: <span class="score-count">0</span></div>
+      </div>
+    </div>
+  
+    <script>
+      const cells = document.querySelectorAll("[data-cell]");
+      const turnMessage = document.querySelector(".turn-message");
+      const scoreCounts = document.querySelectorAll(".score-count");
+      const exitButton = document.querySelector(".btn-exit");
+      const newGameButton = document.querySelector(".btn-new-game");
+  
+      let currentPlayer = "X";
+      let gameActive = true;
+      let moves = 0;
+      let score = { X: 0, O: 0 };
+  
+      const winningCombinations = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+  
+      // Event listeners
+      cells.forEach((cell) => {
+        cell.addEventListener("click", handleCellClick);
+      });
+  
+      exitButton.addEventListener("click", exitGame);
+      newGameButton.addEventListener("click", newGame);
+  
+      function handleCellClick(event) {
+        const clickedCell = event.target;
+        const clickedCellIndex = Array.from(cells).indexOf(clickedCell);
+  
+        if (gameActive && clickedCell.innerHTML === "") {
+          clickedCell.innerHTML = currentPlayer;
+          clickedCell.setAttribute("data-value", currentPlayer);
+          moves++;
+          checkResult();
+  
+          currentPlayer = currentPlayer === "X" ? "O" : "X";
+          turnMessage.textContent = `It's Player ${currentPlayer}'s turn`;
+        }
+      }
+  
+      function checkResult() {
+        if (moves >= 5) {
+          const cellsArray = Array.from(cells);
+          const currentPlayerCells = cellsArray
+            .filter((cell) => cell.getAttribute("data-value") === currentPlayer)
+            .map((cell) => cellsArray.indexOf(cell));
+  
+          for (let combination of winningCombinations) {
+            if (
+              combination.every((index) => currentPlayerCells.includes(index))
+            ) {
+              endGame(true);
+              return;
+            }
+          }
+  
+          if (moves === 9) {
+            endGame(false);
+          }
+        }
+      }
+  
+      function endGame(winner) {
+        gameActive = false;
+  
+        if (winner) {
+          score[currentPlayer]++;
+          scoreCounts
+          document.querySelector(
+          `[data-player="${currentPlayer}"] .score-count`
+        ).textContent = score[currentPlayer];
+      }
+
+      turnMessage.textContent = winner
+        ? `Player ${currentPlayer} wins!`
+        : "It's a tie!";
+
+      cells.forEach((cell) => {
+        cell.removeEventListener("click", handleCellClick);
+      });
+    }
+
+    function resetGame() {
+      currentPlayer = "X";
+      gameActive = true;
+      moves = 0;
+
+      turnMessage.textContent = `It's Player ${currentPlayer}'s turn`;
+
+      cells.forEach((cell) => {
+        cell.innerHTML = "";
+        cell.setAttribute("data-value", "");
+      });
+
+      cells.forEach((cell) => {
+        cell.addEventListener("click", handleCellClick);
+      });
+    }
+
+    function exitGame() {
+      if (confirm("Are you sure you want to exit?")) {
+        // Perform any necessary actions before exiting the game
+        alert("Exiting the game...");
+      }
+    }
+
+    function newGame() {
+      if (confirm("Are you sure you want to start a new game?")) {
+        resetGame();
+
+        // Reset score
+        
+      }
+    }
+    score = { X: 0, O: 0 };
+        scoreCounts.forEach((scoreCount) => {
+          scoreCount.textContent = "0";
+        });
+  </script>
+</body>
+</html>
+
+  
+
+   

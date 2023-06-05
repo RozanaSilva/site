@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      background-color: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      margin-top: 100px;
+      text-align: center;
+      border-radius: 5px;      
+    }
+
+    h1 {
+      font-family: Arial, Helvetica, sans-serif;
+      text-transform: uppercase;
+      font-size: 36px;
+      margin: 0;
+      color:#fff
+    }
+
+    h2 {
+      font-family: Arial, Helvetica, sans-serif;
+      text-transform: uppercase;
+      font-size: 18px;
+      margin-top: 5px;
+      color: white;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 1.5px;
+      margin-top: 30px;
+    }
+
+    .game-cell {
+      cursor: pointer;
+      font-size: 48px;
+      color: #fff;
+      background-color: #818e81;
+      width: 100%;
+      padding-bottom: 100%;
+      position: relative;
+      border-radius: 5px;
+    }
+
+    .game-cell::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      height: 90%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+
+    .game-cell[data-value='X']::before {
+      background-image: url('C:\Users\robar\OneDrive\Área de Trabalho\desenvolvimento na nuvem\site\jogos\servicojogos_app\templates\02-14.png');
+    }
+
+    .game-cell[data-value='O']::before {
+      background-image: url('jogos\servicojogos_app\templates\kisspng-letter-case-o-alphabet-all-caps-dimensional-characters-26-english-letters-5ae471e1173205.841622811524920801095.png');
+    }
+
+    p {
+      margin: 10px 0;
+      color: #fff;
+    }
+
+    span.score {
+      font-weight: bold;
+    }
+
+    .btn-exit {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #f44336;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-exit:hover {
+      background-color: #d32f2f;
+    }
+
+    .score-table {
+  margin-top: 20px;
+  width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.score-label {
+  font-weight: bold;
+  font-size: 18px;
+  color: #fff;
+}
+
+.score {
+  font-size: 24px;
+  color: #fff;
+  padding: 10px;
+}
+</style>
+</head>
+
+<body>
+  
+  <div class="container">
+    <h1 class="title">Tic Tac Toe</h1>
+    <h2 class="subtitle">Homem X Máquina</h2>
+
+    <div class="game-grid">
+      <div class="game-cell" data-index="0"></div>
+      <div class="game-cell" data-index="1"></div>
+      <div class="game-cell" data-index="2"></div>
+      <div class="game-cell" data-index="3"></div>
+      <div class="game-cell" data-index="4"></div>
+      <div class="game-cell" data-index="5"></div>
+      <div class="game-cell" data-index="6"></div>
+      <div class="game-cell" data-index="7"></div>
+      <div class="game-cell" data-index="8"></div>
+    </div>
+
+    <table class="score-table">
+    <tr>
+      <td class="score-label">Homem</td>
+      <td class="score-label">Máquina</td>
+    </tr>
+    <tr>
+      <td id="human-score" class="score">0</td>
+      <td id="ai-score" class="score">0</td>
+    </tr>
+  </table>
+
+
+    <button class="btn-exit" onclick="history.back()">Sair do Jogo</button>
+  </div>  
+</body>
+</html> 
+  <script>
+    var Game = {
+  board: ['', '', '', '', '', '', '', '', ''],
+  currentPlayer: null,
+  winner: null,
+  gameOver: false,
+  humanPlayer: null,
+  aiPlayer: null,
+  humanScore: 0,
+  aiScore: 0,
+
+  // Inicializa o jogo
+  init: function () {
+    var cells = document.getElementsByClassName('game-cell');
+    for (var i = 0; i < cells.length; i++) {
+      cells[i].addEventListener('click', Game.cellClicked);
+    }
+    Game.setupGame();
+  },
+
+  // Configura o jogo
+  setupGame: function () {
+    Game.currentPlayer = Game.humanPlayer;
+    Game.winner = null;
+    Game.gameOver = false;
+    Game.board = ['', '', '', '', '', '', '', '', ''];
+    var cells = document.getElementsByClassName('game-cell');
+    for (var i = 0; i < cells.length; i++) {
+      cells[i].innerText = '';
+    }
+    Game.updateScore();
+  },
+
+  // Manipula o clique em uma célula
+  cellClicked: function (event) {
+    if (Game.gameOver) return;
+    var cell = event.target;
+    var index = cell.dataset.index;
+
+    if (Game.board[index] === '') {
+      Game.board[index] = Game.currentPlayer;
+      cell.innerText = Game.currentPlayer;
+      Game.checkWinningCondition();
+      if (!Game.gameOver) {
+        Game.switchPlayer();
+        if (Game.currentPlayer === Game.aiPlayer) {
+          Game.aiMove();
+        }
+      }
+    }
+  },
+
+  // Muda o jogador atual
+  switchPlayer: function () {
+    Game.currentPlayer = (Game.currentPlayer === Game.humanPlayer) ? Game.aiPlayer : Game.humanPlayer;
+  },
+
+  // Verifica as condições de vitória
+  checkWinningCondition: function () {
+    var winningConditions = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // linhas
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // colunas
+      [0, 4, 8], [2, 4, 6] // diagonais
+    ];
+
+    for (var i = 0; i < winningConditions.length; i++) {
+      var [a, b, c] = winningConditions[i];
+      if (
+        Game.board[a] !== '' &&
+        Game.board[a] === Game.board[b] &&
+        Game.board[a] === Game.board[c]
+      ) {
+        Game.winner = Game.board[a];
+        Game.gameOver = true;
+        Game.updateScore();
+        Game.showGameOverMessage();
+        break;
+      }
+    }
+
+    if (!Game.board.includes('') && !Game.gameOver) {
+      Game.gameOver = true;
+      Game.showGameOverMessage();
+    }
+  },
+
+  // Faz a jogada da IA
+  aiMove: function () {
+    if (Game.currentPlayer === Game.aiPlayer && !Game.gameOver) {
+      var availableMoves = [];
+      for (var i = 0; i < Game.board.length; i++) {
+        if (Game.board[i] === '') {
+          availableMoves.push(i);
+        }
+      }
+
+      var randomMoveIndex = Math.floor(Math.random() * availableMoves.length);
+      var randomMove = availableMoves[randomMoveIndex];
+
+      Game.board[randomMove] = Game.aiPlayer;
+      var cell = document.querySelector('[data-index="' + randomMove + '"]');
+      cell.innerText = Game.aiPlayer;
+      Game.checkWinningCondition();
+      if (!Game.gameOver) {
+        Game.switchPlayer();
+      }
+    }
+  },
+
+  // Atualiza o placar
+  updateScore: function () {
+    var humanScoreElement = document.getElementById('human-score');
+    var aiScoreElement = document.getElementById('ai-score');
+    humanScoreElement.innerText = Game.humanScore;
+    aiScoreElement.innerText = Game.aiScore;
+  },
+
+  // Exibe a mensagem de fim de jogo
+  showGameOverMessage: function () {
+    var message = '';
+    if (Game.winner) {
+      message = 'Vencedor: ' + Game.winner;
+      if (Game.winner === Game.humanPlayer) {
+        Game.humanScore++;
+      } else {
+        Game.aiScore++;
+      }
+    } else {
+      message = 'Empate!';
+    }
+    alert(message);
+    Game.setupGame();
+  },
+
+  // Reinicia o jogo
+  resetGame: function () {
+    Game.humanScore = 0;
+    Game.aiScore = 0;
+    Game.setupGame();
+  }
+};
+
+// Inicializa o jogo quando a página é carregada
+document.addEventListener('DOMContentLoaded', function () {
+  var choice = prompt('Escolha X ou O para jogar:');
+  if (choice && (choice === 'X' || choice === 'O')) {
+    Game.humanPlayer = choice;
+    Game.aiPlayer = (choice === 'X') ? 'O' : 'X';
+    Game.init();
+  } else {
+    alert('Escolha inválida. O jogo será reiniciado.');
+    Game.resetGame();
+  }
+});
+  </script>
+</body>
+</html>
