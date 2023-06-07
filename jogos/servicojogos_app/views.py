@@ -12,3 +12,5 @@ def jogo(request):
 def jogo2(request):
     return render(request, 'ttt_pxp.html')
 
+
+
