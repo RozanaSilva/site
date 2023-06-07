@@ -1,7 +1,8 @@
 version: '3'
 
 services:
-  django-app:
+  jogos:
+    image: 'rozanasilva/jogos'
     build: '.'
     env_file:
       - 'backend/.env'
