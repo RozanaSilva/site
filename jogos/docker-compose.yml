@@ -1,10 +1,9 @@
 version: '3'
 
 services:
-  jogos:
-    image: 'rozanasilva/jogos'
+  django-app:
     build: '.'
     env_file:
       - 'backend/.env'
     ports:
-      - '8000:80'
+      - '8000:8000'
