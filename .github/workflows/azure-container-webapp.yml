@@ -59,10 +59,11 @@ jobs:
 
       - name: Build and push container image to registry
         uses: docker/build-push-action@v2
+        context: ./jogos
         with:
           push: true
           tags: ghcr.io/${{ env.REPO }}:${{ github.sha }}
-          file: ./jogos/Dockerfile
+          file: ./Dockerfile
 
   deploy:
     permissions:
