@@ -18,6 +18,5 @@ COPY . .
 RUN chmod +x ./scripts/start.sh
 
 LABEL maintainer="Rozana <robarroz@gmail.com>"
-EXPOSE 80
 
 CMD ["sh", "./scripts/start.sh"]
