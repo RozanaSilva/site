@@ -31,7 +31,8 @@ jobs:
       with:
         push: true
         tags: rozana.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_4feb4aa6b8b74fe0a2e024b49c7a31be }}/ghcr.io/rozanasilva/site:${{ github.sha }}
-        file: ./Dockerfile
+        context: ./jogos
+        file: ./jogos/Dockerfile
 
   deploy:
     runs-on: ubuntu-latest
