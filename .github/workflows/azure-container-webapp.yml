@@ -35,19 +35,19 @@ jobs:
           context: ./jogos
           file: ./jogos/Dockerfile
 
-    deploy:
-      runs-on: ubuntu-latest
-      needs: build
-      environment:
-        name: 'production'
-        url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
-      steps:
-        - name: Deploy to Azure Web App
-          id: deploy-to-webapp
-          uses: azure/webapps-deploy@v2
-          with:
-            app-name: 'rozana-site'
-            slot-name: 'production'
-            publish-profile: ${{ secrets.AzureAppService_PublishProfile_265e38a7ed80476a923bdce10f386f38 }}
-            images: 'rozana.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_4feb4aa6b8b74fe0a2e024b49c7a31be }}/ghcr.io/rozanasilva/site:${{ github.sha }}'
+    steps:
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'rozana-site'
+          slot-name: 'production'
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_265e38a7ed80476a923bdce10f386f38 }}
+          images: 'rozana.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_4feb4aa6b8b74fe0a2e024b49c7a31be }}/ghcr.io/rozanasilva/site:${{ github.sha }}'
